@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <h1>Stable Diffusion AI</h1>
+    <h1>Model Stable Diffusion v2.1-768</h1>
     <div class="container">
         <div class="form-container">
             <form method="POST" action="index.php">
@@ -56,7 +56,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="samples">Samples:</label>
+                    <label for="samples">Samples (Jumlah):</label>
                     <select id="samples" name="samples" required>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -64,7 +64,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="size">Height & Width:</label>
+                    <label for="size">Height & Width (Ukuran):</label>
                     <select id="size" name="size" required>
                         <option value="512">512</option>
                         <option value="576">576</option>
@@ -80,6 +80,45 @@
                     </select>
                 </div>
                 <div>
+                    <label for="weight">Weight (Optional):</label>
+                    <input type="number" id="weight" name="weight" value="0.5" required>
+                </div>
+                <div>
+                    <label for="cfg_scale">cfg_scale (Optional):</label>
+                    <input type="number" id="cfg_scale" name="cfg_scale" min="0" value="7" required>
+                </div>
+                <div>
+                    <label for="steps">Steps (Optional):</label>
+                    <input type="number" id="steps" name="steps" value="50" required>
+                </div>
+                <div>
+                    <label for="clip_guidance_preset">clip_guidance_preset (Optional):</label>
+                    <select id="clip_guidance_preset" name="clip_guidance_preset" required>
+                        <option value="NONE">NONE</option>
+                        <option value="FAST_BLUE">FAST_BLUE</option>
+                        <option value="FAST_GREEN">FAST_GREEN</option>
+                        <option value="SIMPLE">SIMPLE</option>
+                        <option value="SLOW">SLOW</option>
+                        <option value="SLOWER">SLOWER</option>
+                        <option value="SLOWEST">SLOWEST</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="size">Sampler (Optional):</label>
+                    <select id="sampler" name="sampler" required>
+                        <option value="K_EULER">K_EULER</option>
+                        <option value="DDIM">DDIM</option>
+                        <option value="DDPM">DDPM</option>
+                        <option value="K_DPMPP_2M">K_DPMPP_2M</option>
+                        <option value="K_DPMPP_2S_ANCESTRAL">K_DPMPP_2S_ANCESTRAL</option>
+                        <option value="K_DPM_2">K_DPM_2</option>
+                        <option value="K_DPM_2_ANCESTRAL">K_DPM_2_ANCESTRAL</option>
+                        <option value="K_EULER_ANCESTRAL">K_EULER_ANCESTRAL</option>
+                        <option value="K_HEUN">K_HEUN</option>
+                        <option value="K_LMS">K_LMS</option>
+                    </select>
+                </div>
+                <div>
                     <input type="submit" value="Generate">
                 </div>
             </form>
@@ -87,8 +126,8 @@
         <div class="image-container">
             <?php
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $url = "https://api.stability.ai/v1/generation/stable-diffusion-v1-5/text-to-image";
-                $apiKey = "YOUR-API-KEY";
+                $url = "https://api.stability.ai/v1/generation/stable-diffusion-768-v2-1/text-to-image";
+                $apiKey = "sk-zGcFgWZP3AL2ZHfe2ukb8xbtVlpkuddpvfyc3xREwPHLWSWn";
             
                 $headers = array(
                     "Accept: application/json",
@@ -101,13 +140,24 @@
                 $stylePreset = $_POST['style_preset'];
                 $samples = $_POST['samples'];
                 $size = $_POST['size'];
+                $sampler = $_POST['sampler'];
+                $weight = $_POST['weight'];
+                $cfg_scale = $_POST['cfg_scale'];
+                $clip_guidance_preset = $_POST['clip_guidance_preset'];
+                $seed = $_POST['seed'];
+                $steps = $_POST['steps'];
             
                 $data = array(
                     "height" => intval($size),
                     "width" => intval($size),
-                    "seed" => 2147483647,
-                    "steps" => 50,
-                    "cfg_scale" => 20,
+                    "cfg_scale" => 7.5,
+                    "clip_guidance_preset" => "NONE",
+                    "sampler" => $sampler,
+                    "weight" => floatval($weight),
+                    "cfg_scale" => floatval($cfg_scale),
+                    "clip_guidance_preset" => $clip_guidance_preset,
+                    "seed" => intval($seed),
+                    "steps" => intval($steps),
                     "style_preset" => $stylePreset,
                     "samples" => intval($samples),
                     "text_prompts" => array()
@@ -116,7 +166,7 @@
                 foreach ($textPrompts as $textPrompt) {
                     $data['text_prompts'][] = array(
                         "text" => $textPrompt,
-                        "weight" => 1
+                        "weight" => 0.5
                     );
                 }
             
